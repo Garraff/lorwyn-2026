@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Inventario Lorwyn Completo (2026)</title>
+    <style>
+        :root {
+            --bg: #1a1a1a;
+            --card-bg: #2d2d2d;
+            --accent: #6c5ce7;
+            --text: #ffffff;
+            --gold: #f1c40f;
+        }
+
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 20px; font-size: 15px; }
+        
+        .header-app {
+            background: var(--card-bg);
+            padding: 20px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 4px solid var(--accent);
+            margin-bottom: 20px;
+            position: sticky; top: 10px; z-index: 100;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        h1 { margin: 0; font-size: 1.5rem; color: var(--gold); }
+
+        .stats { display: flex; gap: 20px; font-size: 1.1rem; }
+        .stats b { color: var(--accent); }
+
+        .btn-group button {
+            padding: 10px 20px; font-weight: bold; cursor: pointer; border: none; border-radius: 6px; transition: 0.3s;
+        }
+        .save-btn { background: #00b894; color: white; margin-right: 10px; }
+        .export-btn { background: #0984e3; color: white; }
+
+        .table-container { background: var(--card-bg); border-radius: 12px; overflow: hidden; padding: 10px; margin-bottom: 50px; }
+        table { width: 100%; border-collapse: collapse; }
+        
+        th { background: #3d3d3d; padding: 15px; text-align: left; color: var(--accent); text-transform: uppercase; font-size: 0.8rem; }
+        td { padding: 12px 15px; border-bottom: 1px solid #444; }
+
+        .card-name { color: #81ecec; cursor: pointer; font-weight: bold; font-size: 1.1rem; }
+        .card-name:hover { color: white; text-decoration: underline; }
+
+        .mana-cost { color: #dfe6e9; background: #444; padding: 2px 6px; border-radius: 4px; font-size: 0.9rem; }
+        .type-line { color: #b2bec3; font-style: italic; }
+
+        #card-preview {
+            position: fixed; display: none; width: 280px; z-index: 1000;
+            pointer-events: none; border-radius: 15px; box-shadow: 0 0 30px rgba(0,0,0,0.7);
+            border: 2px solid white;
+        }
+
+        input[type="number"] { width: 50px; padding: 8px; border-radius: 6px; border: 1px solid #555; background: #111; color: white; text-align: center; font-size: 1rem; }
+        input[type="checkbox"] { width: 22px; height: 22px; cursor: pointer; }
+
+        tr:hover { background: #3b3b3b; }
+        .loading { text-align: center; font-size: 1.5rem; padding: 50px; color: var(--gold); }
+    </style>
+</head>
+<body>
+
+    <div class="header-app">
+        <h1>🌒 LORWYN COMPLETO <small>2026</small></h1>
+        
+        <div class="stats">
+            <div>Cartas: <span id="stat-unique">0</span> / <span id="total-set">0</span></div>
+            <div>Copias: <span id="stat-total">0</span></div>
+            <div>Foils: <span id="stat-foil">0</span></div>
+        </div>
+
+        <div class="btn-group">
+            <button class="save-btn" onclick="saveCollection()">💾 GUARDAR CAMBIOS</button>
+            <button class="export-btn" onclick="exportCSV()">📊 EXPORTAR CSV</button>
+        </div>
+    </div>
+
+    <div id="loader" class="loading">Invocando todas las cartas del set...</div>
+
+    <div class="table-container">
+        <table id="main-table" style="display:none">
+            <thead>
+                <tr>
+                    <th style="width: 50px;">#</th>
+                    <th>Nombre</th>
+                    <th>Coste</th>
+                    <th>Tipo</th>
+                    <th style="width: 80px; text-align:center">Tengo</th>
+                    <th style="width: 80px; text-align:center">Extras</th>
+                    <th style="width: 80px; text-align:center">Foil</th>
+                </tr>
+            </thead>
+            <tbody id="card-list"></tbody>
+        </table>
+    </div>
+
+    <img id="card-preview" src="">
+
+    <script>
+        const cardList = document.getElementById('card-list');
+        const preview = document.getElementById('card-preview');
+
+        // Función para cargar todas las páginas de la API
+        async function getAllCards() {
+            let allCards = [];
+            let url = 'https://api.scryfall.com/cards/search?q=s:lrw+lang:es&order=set';
+
+            try {
+                while (url) {
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    allCards = allCards.concat(data.data);
+                    
+                    // Si hay una siguiente página, Scryfall nos da la URL en 'next_page'
+                    url = data.has_more ? data.next_page : null;
+                }
+
+                document.getElementById('loader').style.display = 'none';
+                document.getElementById('main-table').style.display = 'table';
+                document.getElementById('total-set').innerText = allCards.length;
+
+                render(allCards);
+                loadCollection();
+            } catch (error) {
+                document.getElementById('loader').innerText = "Error cargando la base de datos.";
+                console.error(error);
+            }
+        }
+
+        function render(cards) {
+            cards.forEach(c => {
+                const name = c.printed_name || c.name;
+                const type = c.printed_type_line || c.type_line;
+                const cost = c.mana_cost || "";
+                const img = c.image_uris?.normal || "";
+
+                const row = document.createElement('tr');
+                row.dataset.num = c.collector_number;
+                row.innerHTML = `
+                    <td style="color:#777; font-weight:bold">${c.collector_number}</td>
+                    <td><span class="card-name" data-img="${img}">${name}</span></td>
+                    <td><span class="mana-cost">${cost}</span></td>
+                    <td class="type-line">${type}</td>
+                    <td style="text-align:center"><input type="checkbox" class="c-have" onchange="calc()"></td>
+                    <td style="text-align:center"><input type="number" value="0" min="0" class="c-extra" onchange="calc()"></td>
+                    <td style="text-align:center"><input type="checkbox" class="c-foil" onchange="calc()"></td>
+                `;
+                cardList.appendChild(row);
+            });
+            initHover();
+        }
+
+        function initHover() {
+            document.querySelectorAll('.card-name').forEach(item => {
+                item.onmouseenter = () => {
+                    preview.src = item.dataset.img;
+                    preview.style.display = 'block';
+                };
+                item.onmousemove = (e) => {
+                    preview.style.left = (e.clientX + 20) + 'px';
+                    preview.style.top = (e.clientY - 150) + 'px';
+                };
+                item.onmouseleave = () => preview.style.display = 'none';
+            });
+        }
+
+        function calc() {
+            const haves = document.querySelectorAll('.c-have:checked').length;
+            const foils = document.querySelectorAll('.c-foil:checked').length;
+            let extras = 0;
+            document.querySelectorAll('.c-extra').forEach(i => extras += parseInt(i.value || 0));
+
+            document.getElementById('stat-unique').innerText = haves;
+            document.getElementById('stat-total').innerText = haves + extras;
+            document.getElementById('stat-foil').innerText = foils;
+        }
+
+        function saveCollection() {
+            const myData = Array.from(document.querySelectorAll('#card-list tr')).map(tr => ({
+                id: tr.dataset.num,
+                h: tr.querySelector('.c-have').checked,
+                e: tr.querySelector('.c-extra').value,
+                f: tr.querySelector('.c-foil').checked
+            }));
+            localStorage.setItem('mtg_lorwyn_full', JSON.stringify(myData));
+            alert("✅ Colección guardada en este navegador.");
+        }
+
+        function loadCollection() {
+            const saved = JSON.parse(localStorage.getItem('mtg_lorwyn_full'));
+            if (!saved) return;
+            saved.forEach(item => {
+                const row = document.querySelector(`tr[data-num="${item.id}"]`);
+                if (row) {
+                    row.querySelector('.c-have').checked = item.h;
+                    row.querySelector('.num-extra') ? row.querySelector('.num-extra').value = item.e : row.querySelector('.c-extra').value = item.e;
+                    row.querySelector('.c-foil').checked = item.f;
+                }
+            });
+            calc();
+        }
+
+        function exportCSV() {
+            let csv = "\uFEFFNúmero,Nombre,Tengo,Extra,Foil\n";
+            document.querySelectorAll('#card-list tr').forEach(tr => {
+                csv += `"${tr.dataset.num}","${tr.querySelector('.card-name').innerText}",${tr.querySelector('.c-have').checked},${tr.querySelector('.c-extra').value},${tr.querySelector('.c-foil').checked}\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'coleccion_lorwyn_2026.csv';
+            a.click();
+        }
+
+        getAllCards();
+    </script>
+</body>
+</html>
