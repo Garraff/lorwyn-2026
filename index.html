@@ -2,7 +2,7 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Inventario MTG - Acceso Privado</title>
+    <title>Inventario MTG - Versión Estable Español</title>
     <link href="https://cdn.jsdelivr.net/npm/keyrune@latest/css/keyrune.css" rel="stylesheet" type="text/css" />
     <style>
         :root {
@@ -15,148 +15,82 @@
             --success: #00b894;
         }
 
-        /* PANTALLA DE LOGIN */
-        #login-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: #000; z-index: 9999; display: flex;
-            flex-direction: column; align-items: center; justify-content: center;
-        }
-        .login-box {
-            background: var(--card-bg); padding: 40px; border-radius: 15px;
-            border: 2px solid var(--accent); text-align: center;
-            box-shadow: 0 0 30px rgba(108, 92, 231, 0.3);
-        }
-        .login-box input {
-            padding: 12px; width: 200px; border-radius: 6px; border: none;
-            margin-top: 15px; display: block; margin-left: auto; margin-right: auto;
-        }
-        .login-box button {
-            margin-top: 15px; padding: 10px 25px; background: var(--accent);
-            color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;
-        }
+        #app-container { display: flex; height: 100vh; width: 100vw; }
+        body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--text); margin: 0; display: flex; overflow: hidden; }
 
-        /* CUERPO DE LA APP (OCULTO INICIALMENTE) */
-        #app-container { display: none; height: 100vh; width: 100vw; }
+        /* COLORES ORIGINALES */
+        .ss-lrw { color: #f1c40f !important; }
+        .ss-som { color: #bdc3c7 !important; }
+        .ss-mbs { color: #e67e22 !important; }
+        .ss-nph { color: #e74c3c !important; }
+        .ss-spm { color: #ff4757 !important; }
 
-        body { 
-            font-family: 'Segoe UI', Tahoma, sans-serif; 
-            background: var(--bg); color: var(--text); 
-            margin: 0; display: flex; height: 100vh; overflow: hidden;
-        }
+        .sidebar-left { width: 220px; background: var(--sidebar-bg); border-right: 2px solid var(--accent); padding: 20px; display: flex; flex-direction: column; gap: 10px; flex-shrink: 0; }
+        .set-option { display: flex; align-items: center; gap: 12px; background: #252525; color: white; border: 1px solid #444; padding: 12px; border-radius: 8px; cursor: pointer; font-weight: bold; transition: 0.2s; text-align: left; font-size: 0.85rem; }
+        .set-option:hover { border-color: var(--gold); }
+        .set-option.active { border-color: var(--accent); background: rgba(108, 92, 231, 0.2); }
+        .set-option i { font-size: 1.2rem; width: 25px; text-align: center; }
 
-        /* BARRA IZQUIERDA */
-        .sidebar-left {
-            width: 220px; background: var(--sidebar-bg);
-            border-right: 2px solid var(--accent); padding: 20px;
-            display: flex; flex-direction: column; gap: 15px; flex-shrink: 0;
-        }
-
-        .sidebar-title {
-            color: var(--gold); font-size: 0.85rem; letter-spacing: 1.5px; 
-            text-align: center; margin-bottom: 10px; text-transform: uppercase;
-            border-bottom: 1px solid #333; padding-bottom: 10px;
-        }
-
-        .set-option {
-            display: flex; align-items: center; gap: 12px;
-            background: #252525; color: white; border: 1px solid #444;
-            padding: 12px; border-radius: 8px; width: 100%; cursor: pointer;
-            font-weight: bold; margin-bottom: 8px; transition: 0.2s;
-            text-align: left; font-size: 0.85rem;
-        }
-        .set-option:hover { background: #333; border-color: var(--gold); }
-        .set-option.active { border-color: var(--accent); background: rgba(108, 92, 231, 0.2); color: var(--accent); }
-        .set-option i { font-size: 1.3rem; width: 25px; text-align: center; }
-
-        .ss-lrw { color: #f1c40f; } .ss-som { color: #bdc3c7; } 
-        .ss-mbs { color: #e67e22; } .ss-nph { color: #e74c3c; } 
-
-        .main-content { flex-grow: 1; overflow-y: scroll; padding: 20px; display: flex; flex-direction: column; position: relative; }
-        #loader { position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.9); padding: 25px; border-radius: 12px; z-index: 1000; display: none; color: var(--gold); border: 1px solid var(--gold); }
-
-        .header-app { background: var(--card-bg); padding: 12px 20px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--accent); margin-bottom: 15px; position: sticky; top: 0; z-index: 100; }
-        .header-title-box { display: flex; align-items: center; gap: 15px; }
-        #header-icon { font-size: 2.2rem; }
-
+        .main-content { flex-grow: 1; overflow-y: auto; padding: 20px; position: relative; }
+        .header-app { background: var(--card-bg); padding: 15px 25px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; border-bottom: 4px solid var(--accent); margin-bottom: 15px; position: sticky; top: 0; z-index: 100; }
+        
         .table-container { background: var(--card-bg); border-radius: 12px; padding: 10px; }
         table { width: 100%; border-collapse: collapse; }
-        th, td { padding: 8px 12px; border-bottom: 1px solid #444; text-align: left; }
-        .card-name { color: #81ecec; cursor: pointer; font-weight: bold; font-size: 0.9rem; }
+        th, td { padding: 10px; border-bottom: 1px solid #444; text-align: left; }
+        .card-name { color: #81ecec; cursor: pointer; font-weight: bold; }
 
-        .sidebar-right { width: 280px; background: var(--sidebar-bg); border-left: 1px solid #333; padding: 20px; display: flex; flex-direction: column; gap: 20px; flex-shrink: 0; }
+        .sidebar-right { width: 260px; background: var(--sidebar-bg); border-left: 1px solid #333; padding: 20px; display: flex; flex-direction: column; gap: 20px; }
         .widget { background: #222; padding: 15px; border-radius: 10px; border: 1px solid #333; }
-        .widget h3 { margin: 0 0 10px 0; font-size: 0.75rem; color: var(--accent); text-transform: uppercase; }
+        .filter-btn { width: 100%; padding: 8px; margin-bottom: 5px; background: #333; border: none; border-radius: 4px; color: white; cursor: pointer; font-weight: bold; }
+        
         .progress-container { background: #111; height: 10px; border-radius: 5px; overflow: hidden; margin: 10px 0; }
-        .progress-bar { background: var(--success); height: 100%; width: 0%; transition: width 0.6s ease; }
+        .progress-bar { background: var(--success); height: 100%; width: 0%; transition: 0.5s; }
 
-        .filter-btn { width: 100%; padding: 10px; margin-bottom: 6px; background: #333; border: none; border-radius: 6px; color: white; cursor: pointer; font-size: 0.8rem; text-align: left; font-weight: bold; }
-        .filter-btn:hover { background: var(--accent); }
+        #gallery-view { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 15px; display: none; padding-bottom: 50px; }
+        .gallery-item { background: #222; padding: 5px; border-radius: 8px; text-align: center; border: 1px solid #444; }
+        .gallery-item img { width: 100%; border-radius: 5px; display: block; }
 
-        #gallery-view { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 20px; display: none; padding: 10px; }
-        .gallery-item { background: #222; padding: 10px; border-radius: 10px; border: 1px solid #444; transition: 0.3s; }
-        .gallery-item:hover { transform: scale(2.2) translateX(40px); z-index: 9999; background: #1a1a1a; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
-        .gallery-item img { width: 100%; border-radius: 6px; cursor: pointer; }
-
-        #card-preview { position: fixed; display: none; width: 260px; z-index: 1000; pointer-events: none; border-radius: 15px; border: 2px solid white; }
-        input[type="checkbox"] { width: 18px; height: 18px; cursor: pointer; accent-color: var(--gold); }
-        input[type="number"] { width: 40px; background: #111; color: white; border: 1px solid #555; text-align: center; border-radius: 4px; }
+        #card-preview { position: fixed; display: none; width: 260px; z-index: 9999; pointer-events: none; border-radius: 15px; border: 2px solid white; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        #loader { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: rgba(0,0,0,0.9); padding: 20px; border-radius: 10px; color: var(--gold); display: none; z-index: 2000; border: 1px solid var(--gold); }
+        input[type="number"] { width: 45px; background: #111; color: white; border: 1px solid #444; border-radius: 4px; text-align: center; }
     </style>
 </head>
 <body>
 
-    <div id="login-overlay">
-        <div class="login-box">
-            <i class="ss ss-prm ss-grad ss-2x" style="color:var(--gold)"></i>
-            <h2 style="color:white; margin-top:10px;">Cámara del Coleccionista</h2>
-            <p style="color:#888; font-size:0.8rem;">Introduce tu clave de acceso</p>
-            <input type="password" id="pass-input" placeholder="Contraseña...">
-            <button onclick="checkAccess()">ENTRAR</button>
-            <p id="error-msg" style="color:#ff7675; font-size:0.8rem; margin-top:10px; display:none;">Clave incorrecta, Planeswalker.</p>
-        </div>
-    </div>
-
-    <div id="app-container" style="display: none; width: 100%; height: 100vh;">
+    <div id="app-container">
         <div class="sidebar-left">
-            <h2 class="sidebar-title">Mis Colecciones</h2>
-            <div id="set-list">
-                <button class="set-option active" onclick="changeSet('lrw', 'Lorwyn', 'ss-lrw')">
-                    <i class="ss ss-lrw"></i> Lorwyn
-                </button>
-                <button class="set-option" onclick="changeSet('som', 'Cicatrices de Mirrodin', 'ss-som')">
-                    <i class="ss ss-som"></i> Mirrodin
-                </button>
-                <button class="set-option" onclick="changeSet('mbs', 'Mirrodin Sitiado', 'ss-mbs')">
-                    <i class="ss ss-mbs"></i> Sitiado
-                </button>
-                <button class="set-option" onclick="changeSet('nph', 'Nueva Phyrexia', 'ss-nph')">
-                    <i class="ss ss-nph"></i> Phyrexia
-                </button>
-            </div>
-            <hr style="border: 0; border-top: 1px solid #333; margin: 10px 0;">
+            <h3 style="color:var(--gold); font-size:0.7rem; text-align:center; letter-spacing: 2px;">COLECCIONES</h3>
+            <button class="set-option" onclick="changeSet('lrw', 'Lorwyn', 'ss-lrw')"><i class="ss ss-lrw"></i> Lorwyn</button>
+            <button class="set-option" onclick="changeSet('som', 'Mirrodin', 'ss-som')"><i class="ss ss-som"></i> Mirrodin</button>
+            <button class="set-option" onclick="changeSet('mbs', 'Sitiado', 'ss-mbs')"><i class="ss ss-mbs"></i> Sitiado</button>
+            <button class="set-option" onclick="changeSet('nph', 'Phyrexia', 'ss-nph')"><i class="ss ss-nph"></i> Phyrexia</button>
+            <button class="set-option" onclick="changeSet('spm', 'Spider-Man', 'ss-spm')"><i class="ss ss-spm"></i> Spider-Man</button>
+            
+            <hr style="border:0; border-top: 1px solid #333; margin:15px 0;">
             <button class="filter-btn" onclick="switchView('list')">☰ Ver Lista</button>
             <button class="filter-btn" onclick="switchView('gallery')">🖼 Ver Galería</button>
-            <button class="filter-btn" onclick="logout()" style="margin-top:auto; background:#444; font-size:0.7rem; text-align:center;">CERRAR SESIÓN</button>
         </div>
 
         <div class="main-content">
-            <div id="loader">🔮 Cargando expansión...</div>
+            <div id="loader">🔮 Invocando cartas en español...</div>
             <div class="header-app">
-                <div class="header-title-box">
-                    <i id="header-icon" class="ss ss-lrw"></i>
-                    <div id="current-set-title" style="font-weight: bold; color: var(--gold); font-size: 1.2rem;">LORWYN</div>
+                <div style="display:flex; align-items:center; gap:15px;">
+                    <i id="header-icon" class="ss ss-lrw" style="font-size:2.5rem;"></i>
+                    <h2 id="current-set-title" style="margin:0; letter-spacing:1px; text-transform: uppercase;">LORWYN</h2>
                 </div>
-                <button onclick="saveCollection()" style="background:var(--success); color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer; font-weight:bold;">💾 GUARDAR PROGRESO</button>
+                <button onclick="saveCollection()" style="background:var(--success); color:white; border:none; padding:12px 25px; border-radius:8px; cursor:pointer; font-weight:bold;">💾 GUARDAR PROGRESO</button>
             </div>
+
             <div id="list-view" class="table-container">
                 <table>
                     <thead>
                         <tr>
-                            <th style="width:40px">V</th>
-                            <th style="width:35px">#</th>
+                            <th style="width:30px">V</th>
+                            <th style="width:40px">#</th>
                             <th>Nombre de la Carta</th>
-                            <th style="width:60px"><input type="checkbox" id="master-check" onchange="toggleAll(this.checked)"></th>
-                            <th>Extra</th>
-                            <th>Foil</th>
+                            <th style="width:50px">Poseo</th>
+                            <th style="width:60px">Extra</th>
+                            <th style="width:50px">Foil</th>
                         </tr>
                     </thead>
                     <tbody id="card-list-body"></tbody>
@@ -168,27 +102,16 @@
         <div class="sidebar-right">
             <div class="widget">
                 <h3>🔍 Buscador</h3>
-                <input type="text" id="search" class="search-box" placeholder="Nombre..." onkeyup="filterCards()">
+                <input type="text" id="search" style="width:90%; padding:10px; background:#111; border:1px solid #444; color:white; border-radius:6px;" placeholder="Buscar en español..." onkeyup="filterCards()">
             </div>
             <div class="widget">
                 <h3>📈 Progreso Set</h3>
                 <div class="progress-container"><div id="progress-bar" class="progress-bar"></div></div>
-                <div style="display:flex; justify-content:space-between; font-size:0.8rem; font-weight: bold;">
-                    <span id="p-percent">0%</span>
-                    <span id="p-count">0/0</span>
-                </div>
+                <div id="p-count" style="text-align:center; font-weight:bold; color:var(--gold);">0 / 0</div>
             </div>
-            <div class="widget">
-                <h3>🎯 Filtros</h3>
-                <button class="filter-btn" onclick="showAll()">Mostrar Todo</button>
-                <button class="filter-btn" onclick="filterMissing()" style="color: #ff7675;">Ver Faltantes</button>
-            </div>
-            <div class="widget" style="background: rgba(108, 92, 231, 0.05);">
-                <h3>💎 Estadísticas</h3>
-                <div style="font-size:0.85rem; line-height:1.8">
-                    Poseídas: <span id="stat-total" style="color:var(--gold)">0</span><br>
-                    Foils: <span id="stat-foil" style="color:var(--gold)">0</span>
-                </div>
+            <div class="widget" style="margin-top:auto; background: rgba(108, 92, 231, 0.1);">
+                <h3>Total Archivador</h3>
+                <div id="total-stats" style="font-size: 1.5rem; font-weight: bold; text-align: center; color: var(--success);">0</div>
             </div>
         </div>
     </div>
@@ -196,132 +119,113 @@
     <img id="card-preview" src="">
 
     <script>
-        // CONFIGURACIÓN DE SEGURIDAD
-        const PASSWORD_CORRECTA = "Zerpa47630957"; // <--- CAMBIA TU CONTRASEÑA AQUÍ
-
-        function checkAccess() {
-            const input = document.getElementById('pass-input').value;
-            if(input === PASSWORD_CORRECTA) {
-                document.getElementById('login-overlay').style.display = 'none';
-                document.getElementById('app-container').style.display = 'flex';
-                loadAll(); // Carga la app solo tras el login
-            } else {
-                document.getElementById('error-msg').style.display = 'block';
-            }
-        }
-
-        // Permitir pulsar Enter para entrar
-        document.getElementById('pass-input').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') checkAccess();
-        });
-
-        function logout() {
-            location.reload(); // Recarga la página y vuelve a pedir clave
-        }
-
-        // --- LÓGICA DE LA APP (IDÉNTICA A LA ANTERIOR) ---
         let allCardsData = [];
         let currentSet = 'lrw';
         const preview = document.getElementById('card-preview');
 
-        async function changeSet(setCode, setName, iconClass) {
-            currentSet = setCode;
-            document.getElementById('current-set-title').innerText = setName.toUpperCase();
-            document.getElementById('header-icon').className = 'ss ' + iconClass;
-            document.querySelectorAll('.set-option').forEach(btn => btn.classList.remove('active'));
-            event.currentTarget.classList.add('active');
-            document.getElementById('loader').style.display = 'block';
-            await loadAll();
-        }
-
         async function loadAll() {
+            document.getElementById('loader').style.display = 'block';
             try {
-                let url = `https://api.scryfall.com/cards/search?q=s:${currentSet}+lang:es&order=set`;
+                // Buscamos cartas en español (lang:es)
+                let url = `https://api.scryfall.com/cards/search?q=set:${currentSet}+lang:es&order=set&unique=prints`;
                 let res = await fetch(url);
                 let data = await res.json();
+                
+                // Si el set no existe en español, cargamos el normal
                 if (data.status === 404) {
-                    res = await fetch(`https://api.scryfall.com/cards/search?q=s:${currentSet}&order=set`);
+                    url = `https://api.scryfall.com/cards/search?q=set:${currentSet}&order=set&unique=prints`;
+                    res = await fetch(url);
                     data = await res.json();
                 }
-                allCardsData = data.data;
+
+                allCardsData = data.data || [];
+
+                let nextUrl = data.next_page;
+                while (nextUrl) {
+                    let nextRes = await fetch(nextUrl);
+                    let nextData = await nextRes.json();
+                    allCardsData = allCardsData.concat(nextData.data);
+                    nextUrl = nextData.next_page;
+                }
+
                 renderAll();
                 loadCollection();
                 calc();
-                document.getElementById('loader').style.display = 'none';
-            } catch (e) { console.error("Error"); }
+            } catch (e) { console.error("Error", e); }
+            document.getElementById('loader').style.display = 'none';
         }
 
         function renderAll() {
             const listBody = document.getElementById('card-list-body');
             const gallery = document.getElementById('gallery-view');
             listBody.innerHTML = ''; gallery.innerHTML = '';
+
             allCardsData.forEach(c => {
+                // Usamos el nombre y la imagen en español
                 const name = c.printed_name || c.name;
-                const img = c.image_uris ? c.image_uris.normal : "";
+                const img = c.image_uris ? c.image_uris.normal : (c.card_faces ? c.card_faces[0].image_uris.normal : "");
+                
                 const tr = document.createElement('tr');
                 tr.className = 'card-row';
                 tr.dataset.num = c.collector_number;
                 tr.dataset.name = name.toLowerCase();
                 tr.innerHTML = `
-                    <td><button style="background:none; border:1px solid #444; color:var(--success); cursor:pointer;" onclick="quickToggle(${c.collector_number})">✅</button></td>
+                    <td><button style="background:none; border:1px solid #444; color:var(--success); cursor:pointer;" onclick="quickToggle('${c.collector_number}')">✅</button></td>
                     <td style="color:#777; font-size:0.8rem;">${c.collector_number}</td>
-                    <td><span class="card-name" data-img="${img}">${name}</span></td>
-                    <td><input type="checkbox" class="c-have" onchange="sync(${c.collector_number}, 'h', this.checked)"></td>
-                    <td><input type="number" value="0" min="0" class="c-extra" onchange="sync(${c.collector_number}, 'e', this.value)"></td>
-                    <td><input type="checkbox" class="c-foil" onchange="sync(${c.collector_number}, 'f', this.checked)"></td>
+                    <td><span class="card-name preview-trigger" data-img="${img}">${name}</span></td>
+                    <td><input type="checkbox" class="c-have" onchange="calc()"></td>
+                    <td><input type="number" class="c-extra" value="0" min="0" onchange="calc()"></td>
+                    <td><input type="checkbox" class="c-foil" onchange="calc()"></td>
                 `;
                 listBody.appendChild(tr);
+
                 const div = document.createElement('div');
                 div.className = 'gallery-item';
-                div.dataset.num = c.collector_number;
-                div.innerHTML = `<img src="${img}" loading="lazy" onclick="quickToggle(${c.collector_number})">`;
+                div.innerHTML = `<img src="${img}" class="preview-trigger" data-img="${img}" loading="lazy" onclick="quickToggle('${c.collector_number}')">`;
                 gallery.appendChild(div);
             });
             initHover();
         }
 
-        function sync(num, type, value) {
-            const targets = document.querySelectorAll(`[data-num="${num}"]`);
-            targets.forEach(t => {
-                let input = type === 'h' ? t.querySelector('.c-have') : type === 'e' ? t.querySelector('.c-extra') : t.querySelector('.c-foil');
-                if(!input) return;
-                if(input.type === 'checkbox') input.checked = value;
-                else input.value = value;
+        async function changeSet(setCode, setName, iconClass) {
+            currentSet = setCode;
+            document.getElementById('current-set-title').innerText = setName;
+            document.getElementById('header-icon').className = 'ss ' + iconClass;
+            
+            document.querySelectorAll('.set-option').forEach(b => {
+                b.classList.remove('active');
+                if(b.innerText.trim().toLowerCase() === setName.toLowerCase()) b.classList.add('active');
             });
-            calc();
+            await loadAll();
         }
-
-        function toggleAll(state) { allCardsData.forEach(c => sync(c.collector_number, 'h', state)); }
 
         function quickToggle(num) {
             const tr = document.querySelector(`tr[data-num="${num}"]`);
-            sync(num, 'h', !tr.querySelector('.c-have').checked);
+            if(tr) { 
+                const chk = tr.querySelector('.c-have');
+                chk.checked = !chk.checked; 
+                calc(); 
+            }
         }
 
         function calc() {
-            const total = allCardsData.length;
-            const haves = document.querySelectorAll('#list-view .c-have:checked').length;
-            const foils = document.querySelectorAll('#list-view .c-foil:checked').length;
+            const haves = document.querySelectorAll('.c-have:checked').length;
             let extras = 0;
-            document.querySelectorAll('#list-view .c-extra').forEach(i => extras += parseInt(i.value || 0));
-            const percent = total > 0 ? Math.round((haves / total) * 100) : 0;
-            document.getElementById('progress-bar').style.width = percent + '%';
-            document.getElementById('p-percent').innerText = percent + '%';
-            document.getElementById('p-count').innerText = `${haves} / ${total}`;
-            document.getElementById('stat-total').innerText = haves + extras;
-            document.getElementById('stat-foil').innerText = foils;
+            document.querySelectorAll('.c-extra').forEach(i => extras += parseInt(i.value || 0));
+            const totalSet = allCardsData.length;
+            const percent = totalSet > 0 ? Math.round((haves / totalSet) * 100) : 0;
+            const bar = document.getElementById('progress-bar');
+            if(bar) bar.style.width = percent + '%';
+            document.getElementById('p-count').innerText = `${haves} / ${totalSet}`;
+            document.getElementById('total-stats').innerText = haves + extras;
         }
 
         function filterCards() {
             const q = document.getElementById('search').value.toLowerCase();
-            document.querySelectorAll('.card-row').forEach(row => row.style.display = row.dataset.name.includes(q) ? '' : 'none');
+            document.querySelectorAll('.card-row').forEach(row => {
+                row.style.display = row.dataset.name.includes(q) ? '' : 'none';
+            });
         }
-
-        function filterMissing() {
-            document.querySelectorAll('.card-row').forEach(row => row.style.display = row.querySelector('.c-have').checked ? 'none' : '');
-        }
-
-        function showAll() { document.querySelectorAll('.card-row').forEach(row => row.style.display = ''); }
 
         function switchView(view) {
             document.getElementById('list-view').style.display = view === 'list' ? 'block' : 'none';
@@ -329,25 +233,44 @@
         }
 
         function initHover() {
-            document.querySelectorAll('.card-name').forEach(item => {
-                item.onmouseenter = () => { preview.src = item.dataset.img; preview.style.display = 'block'; };
-                item.onmousemove = (e) => { preview.style.left = (e.clientX + 20) + 'px'; preview.style.top = (e.clientY - 150) + 'px'; };
-                item.onmouseleave = () => preview.style.display = 'none';
+            document.querySelectorAll('.preview-trigger').forEach(item => {
+                item.onmouseenter = () => { preview.src = item.getAttribute('data-img'); preview.style.display = 'block'; };
+                item.onmousemove = (e) => { 
+                    let x = e.clientX + 20;
+                    if (x + 260 > window.innerWidth) x = e.clientX - 280;
+                    preview.style.left = x + 'px'; 
+                    preview.style.top = (e.clientY - 150) + 'px'; 
+                };
+                item.onmouseleave = () => { preview.style.display = 'none'; };
             });
         }
 
         function saveCollection() {
-            const data = Array.from(document.querySelectorAll('#list-view tr.card-row')).map(tr => ({
-                id: tr.dataset.num, h: tr.querySelector('.c-have').checked, e: tr.querySelector('.c-extra').value, f: tr.querySelector('.c-foil').checked
+            const data = Array.from(document.querySelectorAll('.card-row')).map(tr => ({
+                id: tr.dataset.num, 
+                h: tr.querySelector('.c-have').checked, 
+                e: tr.querySelector('.c-extra').value, 
+                f: tr.querySelector('.c-foil').checked
             }));
             localStorage.setItem('mtg_inv_' + currentSet, JSON.stringify(data));
-            alert("✨ ¡Guardado!");
+            alert("💾 Guardado correctamente.");
         }
 
         function loadCollection() {
             const saved = JSON.parse(localStorage.getItem('mtg_inv_' + currentSet));
-            if (saved) saved.forEach(item => sync(item.id, 'h', item.h) || sync(item.id, 'e', item.e) || sync(item.id, 'f', item.f));
+            if (saved) {
+                saved.forEach(item => {
+                    const tr = document.querySelector(`tr[data-num="${item.id}"]`);
+                    if (tr) {
+                        tr.querySelector('.c-have').checked = item.h;
+                        tr.querySelector('.c-extra').value = item.e;
+                        tr.querySelector('.c-foil').checked = item.f;
+                    }
+                });
+            }
         }
+
+        window.onload = () => changeSet('lrw', 'Lorwyn', 'ss-lrw');
     </script>
 </body>
 </html>
